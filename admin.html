@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - User Database</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Outfit', sans-serif; overflow-x: hidden; }
+
+        /* Sky Blue Animated Background */
+        .bg-sky-theme {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #bae6fd 100%);
+            background-size: 200% 200%;
+            animation: gradientMove 12s ease infinite;
+            background-attachment: fixed;
+        }
+        @keyframes gradientMove { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+        /* FIXED STARS BACKGROUND */
+        .bg-star { position: fixed; color: #fde047; animation: twinkleStar linear infinite alternate; z-index: 0; opacity: 0; pointer-events: none; }
+        @keyframes twinkleStar { 0% { opacity: 0; transform: scale(0.5) rotate(0deg); } 50% { opacity: 0.8; transform: scale(1.3) rotate(45deg); } 100% { opacity: 0; transform: scale(0.5) rotate(90deg); } }
+        .dur-3 { animation-duration: 3s; } .dur-4 { animation-duration: 4.5s; } .dur-5 { animation-duration: 6s; }
+        .delay-1 { animation-delay: 0.5s; } .delay-2 { animation-delay: 1.5s; } .delay-3 { animation-delay: 2.5s; }
+
+        /* Glassmorphism Styles */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.9); box-shadow: 0 10px 40px rgba(14, 165, 233, 0.15); border-radius: 1rem;
+        }
+        
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.5); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.7);
+        }
+
+        .slide-up { animation: slideUp 0.6s ease-out forwards; }
+        @keyframes slideUp { 0% { opacity: 0; transform: translateY(20px); } 100% { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-sky-theme min-h-screen flex flex-col text-slate-800 relative">
+
+    <i class="fas fa-star text-sm bg-star dur-3 delay-1" style="top: 10%; left: 5%;"></i>
+    <i class="fas fa-star text-lg bg-star dur-5 delay-2" style="top: 25%; left: 85%;"></i>
+    <i class="fas fa-star text-xs bg-star dur-4" style="top: 55%; left: 15%;"></i>
+    <i class="fas fa-star text-sm bg-star dur-3 delay-3" style="top: 75%; left: 80%;"></i>
+    <i class="fas fa-star text-md bg-star dur-5 delay-1" style="top: 85%; left: 30%;"></i>
+    <i class="fas fa-star text-lg bg-star dur-4 delay-2" style="top: 15%; left: 65%;"></i>
+
+    <nav class="glass-nav py-4 px-6 flex justify-between items-center shadow-lg sticky top-0 z-50">
+        <div class="flex items-center space-x-3">
+            <div class="bg-red-100/80 p-2 rounded-lg shadow-sm border border-red-200">
+                <i class="fas fa-shield-alt text-red-500 text-xl"></i>
+            </div>
+            <h1 class="text-xl font-extrabold text-blue-900 tracking-tight">Administrator Panel</h1>
+        </div>
+        <div class="flex items-center space-x-4 text-sm font-bold">
+            <span class="text-sky-800 hidden md:inline-block border-r border-sky-300 pr-4">
+                Admin: <span class="text-blue-900">{{ username }}</span>
+            </span>
+            <a href="/dashboard" class="text-sky-700 hover:text-blue-900 transition flex items-center">
+                <i class="fas fa-chart-line mr-1"></i> Dashboard
+            </a>
+            <a href="/logout" class="bg-red-500/80 hover:bg-red-600 text-white px-4 py-2 rounded-full transition text-xs flex items-center shadow-md backdrop-blur-sm border border-red-400">
+                <i class="fas fa-sign-out-alt mr-1"></i> Logout
+            </a>
+        </div>
+    </nav>
+
+    <main class="flex-grow w-full max-w-5xl mx-auto px-4 py-10 relative z-10">
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="mb-6 px-4 py-3 rounded-lg shadow-sm font-bold text-sm {% if category == 'success' %}bg-green-100 text-green-700 border-l-4 border-green-500{% else %}bg-red-100 text-red-700 border-l-4 border-red-500{% endif %}">
+                        <i class="fas {% if category == 'success' %}fa-check-circle{% else %}fa-exclamation-circle{% endif %} mr-2"></i> {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="glass-card overflow-hidden slide-up">
+            
+            <div class="bg-blue-900/80 backdrop-blur-md p-6 text-white flex justify-between items-center border-b border-white/20">
+                <div>
+                    <h2 class="text-2xl font-extrabold flex items-center">
+                        <i class="fas fa-users mr-3 text-sky-300"></i> Registered Users Database
+                    </h2>
+                    <p class="text-sky-200 text-sm mt-1 font-medium">
+                        Live data fetched from SQLite database &nbsp;|&nbsp; 
+                        <span class="bg-white/20 px-2 py-0.5 rounded text-white font-bold">{{ users|length }} Total Users</span>
+                    </p>
+                </div>
+            </div>
+            
+            <div class="p-0 overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-white/40 text-sky-800 border-b border-white/60 text-xs uppercase tracking-widest">
+                            <th class="p-5 font-extrabold">User ID</th>
+                            <th class="p-5 font-extrabold">Username</th>
+                            <th class="p-5 font-extrabold">Email</th>
+                            <th class="p-5 font-extrabold">Status</th>
+                            <th class="p-5 font-extrabold text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm font-medium">
+                        {% for user in users %}
+                        <tr class="border-b border-white/40 hover:bg-white/50 transition-colors duration-200">
+                            
+                            <td class="p-5 text-blue-900 font-extrabold">#{{ user[0] }}</td>
+                            
+                            <td class="p-5 text-sky-700 font-bold flex items-center mt-0.5">
+                                <i class="fas fa-user-circle mr-2 text-sky-400 text-lg"></i> {{ user[1] }}
+                            </td>
+
+                            <td class="p-5 text-gray-600 font-medium">
+                                {{ user[2] }}
+                            </td>
+                            
+                            <td class="p-5">
+                                {% if user[1] == 'admin' %}
+                                <span class="bg-red-100/80 border border-red-200 text-red-700 px-3 py-1.5 rounded-full text-xs font-extrabold shadow-sm flex inline-flex items-center">
+                                    <i class="fas fa-star text-[10px] mr-1"></i> Administrator
+                                </span>
+                                {% else %}
+                                <span class="bg-green-100/80 border border-green-200 text-green-700 px-3 py-1.5 rounded-full text-xs font-bold shadow-sm flex inline-flex items-center">
+                                    <i class="fas fa-check text-[10px] mr-1"></i> Active User
+                                </span>
+                                {% endif %}
+                            </td>
+
+                            <td class="p-5 text-center">
+                                {% if user[1] != 'admin' %}
+                                <a href="/admin/delete/{{ user[0] }}" onclick="return confirm('Are you sure you want to permanently delete user: {{ user[1] }}?');" class="inline-flex items-center justify-center w-8 h-8 rounded bg-red-100 text-red-600 hover:bg-red-200 transition-colors" title="Delete User">
+                                    <i class="fas fa-trash text-xs"></i>
+                                </a>
+                                {% else %}
+                                <span class="text-xs text-gray-400 font-bold bg-gray-100 px-2 py-1 rounded">Protected</span>
+                                {% endif %}
+                            </td>
+
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+        </div>
+        
+    </main>
+</body>
+</html>

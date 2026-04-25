@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Dashboard - E-Commerce Engine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Outfit', sans-serif; overflow-x: hidden; }
+
+        /* Sky Blue Animated Background */
+        .bg-sky-theme {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #bae6fd 100%);
+            background-size: 200% 200%;
+            animation: gradientMove 12s ease infinite;
+            background-attachment: fixed;
+        }
+        @keyframes gradientMove { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+        /* FIXED STARS BACKGROUND */
+        .bg-star { position: fixed; color: #fde047; animation: twinkleStar linear infinite alternate; z-index: 0; opacity: 0; pointer-events: none; }
+        @keyframes twinkleStar { 0% { opacity: 0; transform: scale(0.5) rotate(0deg); } 50% { opacity: 0.8; transform: scale(1.3) rotate(45deg); } 100% { opacity: 0; transform: scale(0.5) rotate(90deg); } }
+        .dur-3 { animation-duration: 3s; } .dur-4 { animation-duration: 4.5s; } .dur-5 { animation-duration: 6s; }
+        .delay-1 { animation-delay: 0.5s; } .delay-2 { animation-delay: 1.5s; } .delay-3 { animation-delay: 2.5s; }
+
+        /* Glassmorphism Classes */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.9); box-shadow: 0 10px 40px rgba(14, 165, 233, 0.15); border-radius: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.5); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.7);
+        }
+
+        .glass-input {
+            background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.9);
+            color: #1e3a8a; transition: all 0.3s ease;
+        }
+        .glass-input:focus {
+            background: rgba(255, 255, 255, 0.95); border-color: #38bdf8; box-shadow: 0 0 15px rgba(56, 189, 248, 0.4); outline: none;
+        }
+
+        .glass-btn-primary {
+            background: rgba(14, 165, 233, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(56, 189, 248, 0.8);
+            box-shadow: 0 8px 25px rgba(14, 165, 233, 0.3); transition: all 0.3s ease;
+        }
+        .glass-btn-primary:hover { background: rgba(14, 165, 233, 1); transform: translateY(-2px); box-shadow: 0 12px 30px rgba(14, 165, 233, 0.5); }
+
+        .spinner { border: 3px solid rgba(255,255,255,0.3); width: 20px; height: 20px; border-radius: 50%; border-left-color: #fff; animation: spin 1s linear infinite; display: inline-block; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .animate-float { animation: float 4s ease-in-out infinite; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+    </style>
+</head>
+<body class="bg-sky-theme min-h-screen flex flex-col text-slate-800 relative">
+
+    <i class="fas fa-star text-sm bg-star dur-3 delay-1" style="top: 10%; left: 5%;"></i>
+    <i class="fas fa-star text-lg bg-star dur-5 delay-2" style="top: 25%; left: 85%;"></i>
+    <i class="fas fa-star text-xs bg-star dur-4" style="top: 55%; left: 15%;"></i>
+    <i class="fas fa-star text-sm bg-star dur-3 delay-3" style="top: 75%; left: 80%;"></i>
+    <i class="fas fa-star text-md bg-star dur-5 delay-1" style="top: 85%; left: 30%;"></i>
+    <i class="fas fa-star text-lg bg-star dur-4 delay-2" style="top: 15%; left: 65%;"></i>
+    <i class="fas fa-star text-xs bg-star dur-3" style="top: 60%; left: 60%;"></i>
+    <i class="fas fa-star text-md bg-star dur-5 delay-3" style="top: 40%; left: 40%;"></i>
+
+    <nav class="glass-nav text-blue-900 py-4 px-6 flex justify-between items-center shadow-lg sticky top-0 z-50">
+        <div class="flex items-center space-x-3">
+            <div class="bg-white/70 p-2 rounded-lg shadow-sm border border-white">
+                <i class="fas fa-layer-group text-sky-500 text-xl"></i>
+            </div>
+            <h1 class="text-xl font-extrabold tracking-tight">AI Dashboard</h1>
+        </div>
+        <div class="flex items-center space-x-4 text-sm font-bold">
+            <span class="text-sky-800 hidden md:inline-block border-r border-sky-300 pr-4">
+                <i class="fas fa-user-circle mr-1 text-sky-500"></i> User: <span class="text-blue-900">{{ username }}</span>
+            </span>
+            {% if username == 'admin' %}
+            <a href="/admin" class="text-yellow-600 hover:text-yellow-700 transition flex items-center bg-yellow-100/50 px-3 py-1.5 rounded-full border border-yellow-200">
+                <i class="fas fa-user-shield mr-1"></i> Admin Panel
+            </a>
+            {% endif %}
+            <a href="/" class="text-sky-700 hover:text-blue-900 transition flex items-center">
+                <i class="fas fa-home mr-1"></i> Home
+            </a>
+            <a href="/logout" class="bg-red-500/80 hover:bg-red-600 text-white px-4 py-2 rounded-full transition text-xs flex items-center shadow-md backdrop-blur-sm border border-red-400">
+                <i class="fas fa-sign-out-alt mr-1"></i> Logout
+            </a>
+        </div>
+    </nav>
+
+    <main class="flex-grow w-full max-w-[90rem] mx-auto px-4 py-8 flex flex-col gap-6 relative z-10">
+        
+        <div class="w-full flex flex-col lg:flex-row gap-6">
+            
+            <div class="flex-1 glass-card p-6 border-t-4 border-t-sky-500 transition-all duration-500 ease-in-out">
+                <h2 class="font-extrabold mb-5 text-blue-900 flex items-center text-lg">
+                    <i class="fas fa-terminal text-sky-500 mr-2 bg-white/50 p-1.5 rounded-md shadow-sm"></i> Data Input Stream
+                </h2>
+                <form id="ai-form" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-extrabold text-sky-700 uppercase mb-2 tracking-wider ml-1">Raw Customer Review</label>
+                        <textarea id="review" rows="5" class="glass-input w-full p-4 rounded-xl resize-none text-sm shadow-inner" placeholder="Paste or type customer feedback here to analyze..." required></textarea>
+                    </div>
+                    <button type="submit" id="submit-btn" class="glass-btn-primary w-full text-white font-extrabold py-3.5 rounded-xl flex justify-center items-center">
+                        <span id="btn-text">Execute AI Inference</span>
+                        <div id="loading-spinner" class="spinner hidden ml-2"></div>
+                    </button>
+                </form>
+            </div>
+            
+            <div id="metadata-card" class="w-full lg:w-1/3 glass-card p-5 hidden flex-col justify-center gap-3 transition-all duration-500 ease-in-out">
+                <h3 class="text-xs font-extrabold text-sky-700 uppercase border-b border-white/50 pb-2 tracking-wider text-center lg:text-left">Text Analytics</h3>
+                <div class="grid grid-cols-3 gap-3 text-sm mt-2 text-center">
+                    <div class="bg-white/40 p-3 rounded-lg border border-white/60">
+                        <span class="text-sky-600 block text-[10px] uppercase font-bold">Reviews</span>
+                        <span id="review-count" class="font-black text-blue-900 text-xl">0</span>
+                    </div>
+                    <div class="bg-white/40 p-3 rounded-lg border border-white/60">
+                        <span class="text-sky-600 block text-[10px] uppercase font-bold">Words</span>
+                        <span id="word-count" class="font-black text-blue-900 text-xl">0</span>
+                    </div>
+                    <div class="bg-white/40 p-3 rounded-lg border border-white/60">
+                        <span class="text-sky-600 block text-[10px] uppercase font-bold">Read Time</span>
+                        <span id="read-time" class="font-black text-blue-900 text-xl">0s</span>
+                    </div>
+                    <div class="col-span-3 mt-1 bg-white/40 p-3 rounded-lg border border-white/60 flex justify-between items-center">
+                        <span class="text-sky-600 text-xs uppercase font-bold flex items-center"><i class="fas fa-bolt text-yellow-500 mr-2"></i> Engine Latency</span>
+                        <span id="latency-val" class="font-black text-yellow-600 bg-yellow-100/80 px-3 py-1 rounded text-sm shadow-sm border border-yellow-200">-- ms</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="w-full">
+            
+            <div id="empty-state" class="glass-card w-full flex flex-col items-center justify-center text-center p-12 min-h-[400px] border-dashed border-2 border-sky-200">
+                <div class="w-24 h-24 bg-white/60 rounded-full flex items-center justify-center mb-6 shadow-lg border border-white animate-float">
+                    <i class="fas fa-robot text-5xl text-sky-400"></i>
+                </div>
+                <h3 class="text-2xl font-extrabold text-blue-900 mb-2">Engine is on Standby</h3>
+                <p class="text-sky-700 text-sm max-w-sm font-medium">Submit text data in the input stream above to generate real-time machine learning predictions and sentiment analytics.</p>
+            </div>
+
+            <div id="results-state" class="hidden flex flex-col gap-6 slide-up w-full">
+                
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-2 gap-4 mt-4">
+                    <h2 class="text-2xl font-extrabold text-blue-900 flex items-center">
+                        <i class="fas fa-chart-pie text-sky-500 mr-2 bg-white/50 p-2 rounded-lg shadow-sm"></i> Analysis Report
+                    </h2>
+                    <button id="download-btn" class="text-sm bg-white/60 hover:bg-white border border-white text-blue-900 font-bold py-2 px-4 rounded-lg transition shadow-sm flex items-center">
+                        <i class="fas fa-download mr-2 text-sky-500"></i> Export JSON
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="glass-card p-6 border-l-4 relative overflow-hidden" id="prediction-border">
+                        <i id="bg-icon" class="fas fa-chart-bar absolute -right-4 -bottom-4 text-8xl opacity-10 text-slate-800"></i>
+                        <p class="text-xs text-slate-500 font-bold uppercase mb-1 tracking-wider z-10 relative">ML Classification</p>
+                        <h2 id="pred-title" class="text-3xl font-black mb-1 z-10 relative">--</h2>
+                        <div class="mt-8 pt-4 border-t border-black/5 z-10 relative">
+                            <div class="flex justify-between text-xs font-bold uppercase mb-2">
+                                <span class="text-slate-600">Confidence Score</span>
+                                <span id="conf-val" class="text-slate-900 font-black">--%</span>
+                            </div>
+                            <div class="w-full bg-black/10 rounded-full h-3 shadow-inner">
+                                <div id="conf-bar" class="h-3 rounded-full transition-all duration-1000 ease-out shadow-md" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-card p-6" id="action-bg">
+                        <p class="text-xs text-slate-800 font-bold uppercase mb-4 tracking-wider flex items-center bg-white/50 inline-block px-3 py-1 rounded-full shadow-sm"><i class="fas fa-lightbulb text-yellow-500 mr-2"></i>Recommended Actions</p>
+                        <ul id="action-list" class="space-y-3 text-sm font-bold"></ul>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="glass-card p-6">
+                        <p class="text-xs text-sky-700 font-bold uppercase mb-4 tracking-wider bg-white/50 inline-block px-3 py-1 rounded-full shadow-sm"><i class="fas fa-tags text-sky-500 mr-2"></i>Trending Keywords</p>
+                        <div id="keywords-container" class="flex flex-wrap gap-2 mt-2"></div>
+                    </div>
+                    
+                    <div class="glass-card p-6">
+                        <p class="text-xs text-sky-700 font-bold uppercase mb-4 tracking-wider bg-white/50 inline-block px-3 py-1 rounded-full shadow-sm"><i class="fas fa-layer-group text-sky-500 mr-2"></i>Aspect Impact</p>
+                        <div id="aspects-list" class="space-y-4 mt-2"></div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="glass-card p-6 border-t-4 border-t-purple-500 bg-purple-50/30">
+                        <p class="text-xs text-purple-800 font-bold uppercase mb-4 tracking-wider flex items-center bg-white/60 inline-block px-3 py-1 rounded-full shadow-sm">
+                            <i class="fas fa-box-open text-purple-500 mr-2"></i>Predicted Category
+                        </p>
+                        <div class="flex items-center justify-center py-2 h-full pb-6">
+                            <span id="predicted-category" class="text-xl md:text-2xl font-black text-purple-900 bg-white/80 px-6 py-4 rounded-xl shadow-md border border-purple-200 text-center w-full block">
+                                --
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="glass-card p-6 border-t-4 border-t-orange-500 bg-orange-50/30">
+                        <p class="text-xs text-orange-800 font-bold uppercase mb-4 tracking-wider flex items-center bg-white/60 inline-block px-3 py-1 rounded-full shadow-sm">
+                            <i class="fas fa-link text-orange-500 mr-2"></i>Related Products
+                        </p>
+                        <div id="related-products-list" class="flex flex-wrap gap-3 mt-2">
+                            </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="glass-card p-5 border-t-4 border-t-green-500 bg-green-50/50">
+                        <p class="text-[11px] text-green-700 font-black uppercase mb-3 tracking-wider flex items-center"><i class="fas fa-quote-left text-green-500 mr-2 bg-white p-1 rounded"></i>Top Positive Voice</p>
+                        <p id="best-review-text" class="text-sm text-slate-700 italic border-l-2 border-green-300 pl-3 break-words"></p>
+                    </div>
+                    <div class="glass-card p-5 border-t-4 border-t-red-500 bg-red-50/50">
+                        <p class="text-[11px] text-red-700 font-black uppercase mb-3 tracking-wider flex items-center"><i class="fas fa-quote-left text-red-500 mr-2 bg-white p-1 rounded"></i>Top Negative Voice</p>
+                        <p id="worst-review-text" class="text-sm text-slate-700 italic border-l-2 border-red-300 pl-3 break-words"></p>
+                    </div>
+                </div>
+
+                <div class="glass-card p-6 mb-8">
+                    <p class="text-xs text-sky-700 font-bold uppercase mb-6 tracking-wider bg-white/50 inline-block px-3 py-1 rounded-full shadow-sm">NLP Sentiment Breakdown (VADER)</p>
+                    <div class="flex flex-col md:flex-row items-center gap-10">
+                        <div class="w-56 h-56 relative bg-white/30 p-2 rounded-full shadow-inner border border-white/50 flex-shrink-0">
+                            <canvas id="sentimentChart"></canvas>
+                        </div>
+                        
+                        <div class="flex-grow w-full">
+                            <div class="bg-white/60 p-5 rounded-xl border border-white shadow-sm flex items-center justify-between mb-4 backdrop-blur-sm">
+                                <div class="w-1/2">
+                                    <span class="block text-xs font-black text-sky-800 uppercase tracking-wider mb-1">Compound Polarity</span>
+                                    <span class="text-[10px] font-bold text-sky-600 bg-sky-100 px-2 py-0.5 rounded">Scale: -1.0 to +1.0</span>
+                                </div>
+                                <div class="w-1/2 h-24 relative flex justify-center">
+                                    <canvas id="gaugeChart"></canvas>
+                                    <div class="absolute bottom-0 text-center w-full pb-1">
+                                        <span id="compound-val" class="font-black text-2xl text-blue-900 drop-shadow-sm">--</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-3 gap-4 text-center text-xs font-extrabold text-white">
+                                <div class="bg-green-500/90 backdrop-blur-sm py-4 rounded-xl shadow-md border border-green-400">POS: <br><span id="pos-val" class="text-xl">0</span>%</div>
+                                <div class="bg-slate-400/90 backdrop-blur-sm py-4 rounded-xl shadow-md border border-slate-300">NEU: <br><span id="neu-val" class="text-xl">0</span>%</div>
+                                <div class="bg-red-500/90 backdrop-blur-sm py-4 rounded-xl shadow-md border border-red-400">NEG: <br><span id="neg-val" class="text-xl">0</span>%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let sentimentChart = null; 
+        let gaugeChart = null;
+        let lastReportData = null; 
+
+        document.getElementById('ai-form').addEventListener('submit', async (e) => {
+            e.preventDefault(); 
+            
+            const reviewText = document.getElementById('review').value;
+            const btnText = document.getElementById('btn-text');
+            const spinner = document.getElementById('loading-spinner');
+            
+            const reviewCount = reviewText.split('\n').filter(line => line.trim() !== '').length;
+            
+            btnText.innerText = "Processing Data...";
+            spinner.classList.remove('hidden');
+            
+            try {
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ review: reviewText })
+                });
+                
+                if (response.status === 401) {
+                    window.location.href = '/login'; 
+                    return;
+                }
+                
+                const data = await response.json();
+                lastReportData = { input_text: reviewText, analysis: data }; 
+                
+                document.getElementById('empty-state').classList.add('hidden');
+                document.getElementById('results-state').classList.remove('hidden');
+                
+                // Show Analytics block smoothly
+                document.getElementById('metadata-card').classList.remove('hidden');
+                document.getElementById('metadata-card').classList.add('flex');
+                
+                document.getElementById('latency-val').innerText = data.latency + ' ms';
+                document.getElementById('review-count').innerText = reviewCount;
+                document.getElementById('word-count').innerText = data.text_stats.words;
+                document.getElementById('read-time').innerText = data.text_stats.reading_time_sec + 's';
+                
+                document.getElementById('conf-val').innerText = data.confidence + '%';
+                
+                const isPopular = data.prediction === 'Popular';
+                const predBorder = document.getElementById('prediction-border');
+                const predTitle = document.getElementById('pred-title');
+                const confBar = document.getElementById('conf-bar');
+                const actionBg = document.getElementById('action-bg');
+                
+                if (isPopular) {
+                    predBorder.className = "glass-card p-6 border-l-8 border-green-500 relative overflow-hidden bg-green-500/5";
+                    predTitle.innerHTML = '<i class="fas fa-check-circle text-green-500 mr-2 drop-shadow"></i>Promote Product';
+                    predTitle.className = "text-3xl font-black mb-1 text-green-700 z-10 relative";
+                    confBar.className = "h-3 rounded-full transition-all duration-1000 ease-out bg-gradient-to-r from-green-400 to-green-600 shadow-lg";
+                    actionBg.className = "glass-card p-6 bg-green-500/10 border border-green-200/50";
+                } else {
+                    predBorder.className = "glass-card p-6 border-l-8 border-red-500 relative overflow-hidden bg-red-500/5";
+                    predTitle.innerHTML = '<i class="fas fa-exclamation-triangle text-red-500 mr-2 drop-shadow"></i>Suppress Product';
+                    predTitle.className = "text-3xl font-black mb-1 text-red-700 z-10 relative";
+                    confBar.className = "h-3 rounded-full transition-all duration-1000 ease-out bg-gradient-to-r from-red-400 to-red-600 shadow-lg";
+                    actionBg.className = "glass-card p-6 bg-red-500/10 border border-red-200/50";
+                }
+                
+                setTimeout(() => { confBar.style.width = data.confidence + '%'; }, 100);
+                
+                const actionList = document.getElementById('action-list');
+                actionList.innerHTML = '';
+                data.actions.forEach(action => {
+                    const li = document.createElement('li');
+                    li.className = isPopular ? "text-green-800 flex items-start bg-white/40 p-2 rounded-lg border border-green-100" : "text-red-800 flex items-start bg-white/40 p-2 rounded-lg border border-red-100";
+                    li.innerHTML = `<i class="fas fa-chevron-right mt-1 mr-2 text-xs opacity-70"></i><span>${action}</span>`;
+                    actionList.appendChild(li);
+                });
+
+                const keywords = data.keywords || ['Awaiting', 'Backend', 'Update'];
+                const kContainer = document.getElementById('keywords-container');
+                kContainer.innerHTML = '';
+                keywords.forEach(kw => {
+                    kContainer.innerHTML += `<span class="bg-white/70 text-blue-800 text-xs font-black px-3 py-1.5 rounded-full border border-sky-200 shadow-sm transition hover:bg-sky-100 hover:scale-105 cursor-default">${kw}</span>`;
+                });
+
+                const aspects = data.aspects || { "Quality": 0, "Price": 0, "Service": 0 };
+                const aList = document.getElementById('aspects-list');
+                aList.innerHTML = '';
+                for (const [aspect, score] of Object.entries(aspects)) {
+                    aList.innerHTML += `
+                        <div>
+                            <div class="flex justify-between text-[10px] font-black uppercase mb-1 text-sky-800">
+                                <span>${aspect}</span>
+                                <span>${score}%</span>
+                            </div>
+                            <div class="w-full bg-black/5 rounded-full h-2.5 shadow-inner">
+                                <div class="h-2.5 rounded-full bg-gradient-to-r from-sky-400 to-blue-500 shadow-sm" style="width: ${score}%"></div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                const predictedCategory = data.category || 'Beauty & Cosmetics'; 
+                const relatedProducts = data.related_products || ['Premium Gift Box', 'Travel Size Kit', 'Organic Serum']; 
+
+                document.getElementById('predicted-category').innerHTML = `<i class="fas fa-check text-purple-500 mr-2"></i>${predictedCategory}`;
+
+                const relContainer = document.getElementById('related-products-list');
+                relContainer.innerHTML = '';
+                relatedProducts.forEach(prod => {
+                    relContainer.innerHTML += `<span class="bg-white/80 text-orange-900 text-sm font-extrabold px-3 py-2 rounded-lg border border-orange-200 shadow-sm flex items-center transition hover:bg-orange-100 hover:scale-105 cursor-default"><i class="fas fa-cart-plus text-orange-400 mr-2"></i>${prod}</span>`;
+                });
+
+                document.getElementById('best-review-text').innerText = `"${data.best_review}"`;
+                document.getElementById('worst-review-text').innerText = `"${data.worst_review}"`;
+
+                document.getElementById('compound-val').innerText = data.vader_compound;
+                document.getElementById('pos-val').innerText = data.vader_pos;
+                document.getElementById('neu-val').innerText = data.vader_neu;
+                document.getElementById('neg-val').innerText = data.vader_neg;
+
+                const ctx = document.getElementById('sentimentChart').getContext('2d');
+                if (sentimentChart) { sentimentChart.destroy(); } 
+                sentimentChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Positive', 'Neutral', 'Negative'],
+                        datasets: [{
+                            data: [data.vader_pos, data.vader_neu, data.vader_neg],
+                            backgroundColor: ['#22c55e', '#94a3b8', '#ef4444'],
+                            borderWidth: 3,
+                            borderColor: 'rgba(255,255,255,0.8)',
+                            hoverOffset: 4
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { display: false } } }
+                });
+
+                const gaugeCtx = document.getElementById('gaugeChart').getContext('2d');
+                if (gaugeChart) { gaugeChart.destroy(); }
+                
+                const compValue = parseFloat(data.vader_compound);
+                const score100 = ((compValue + 1) / 2) * 100; 
+                let gaugeColor = '#94a3b8'; 
+                if (compValue > 0.05) gaugeColor = '#22c55e'; 
+                else if (compValue < -0.05) gaugeColor = '#ef4444'; 
+
+                gaugeChart = new Chart(gaugeCtx, {
+                    type: 'doughnut',
+                    data: {
+                        datasets: [{
+                            data: [score100, 100 - score100],
+                            backgroundColor: [gaugeColor, 'rgba(0,0,0,0.05)'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        circumference: 180, rotation: 270, cutout: '75%',
+                        plugins: { tooltip: { enabled: false }, legend: { display: false } }
+                    }
+                });
+                
+            } catch (error) {
+                alert("API Connection Error. Ensure the Flask server is running.");
+                console.error(error);
+            } finally {
+                btnText.innerText = 'Execute AI Inference';
+                spinner.classList.add('hidden');
+            }
+        });
+
+        document.getElementById('download-btn').addEventListener('click', () => {
+            if (!lastReportData) return;
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(lastReportData, null, 4));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "ai_analysis_report.json");
+            document.body.appendChild(downloadAnchorNode); 
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        });
+    </script>
+</body>
+</html>

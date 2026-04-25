@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI E-Commerce Engine - Oxford Brookes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ALLOW SCROLLING ON MOBILE: Changed from overflow: hidden and height: 100vh */
+        body { font-family: 'Outfit', sans-serif; overflow-x: hidden; min-height: 100vh; width: 100%; }
+
+        /* Sky Blue Animated Background */
+        .bg-sky-theme {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #bae6fd 100%);
+            background-size: 200% 200%;
+            animation: gradientMove 12s ease infinite;
+        }
+        @keyframes gradientMove { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+        /* GLOBAL YELLOW STARS BACKGROUND (HIGH DENSITY) */
+        .bg-star {
+            position: absolute;
+            color: #fde047; /* Yellow-300 */
+            animation: twinkleStar linear infinite alternate;
+            z-index: 0;
+            opacity: 0;
+            pointer-events: none;
+        }
+        @keyframes twinkleStar {
+            0% { opacity: 0; transform: scale(0.5) rotate(0deg); }
+            50% { opacity: 0.8; transform: scale(1.3) rotate(45deg); }
+            100% { opacity: 0; transform: scale(0.5) rotate(90deg); }
+        }
+        .dur-3 { animation-duration: 3s; } .dur-4 { animation-duration: 4.5s; } .dur-5 { animation-duration: 6s; } .dur-6 { animation-duration: 7s; }
+        .delay-1 { animation-delay: 0.5s; } .delay-2 { animation-delay: 1.5s; } .delay-3 { animation-delay: 2.5s; } .delay-4 { animation-delay: 3.5s; }
+
+        /* NEURAL CONNECTION LINES (CODE-LIKE) */
+        .neural-line {
+            position: absolute;
+            z-index: 15; /* Behinds the boxes but over background */
+            pointer-events: none;
+            border-top: 1px dashed rgba(56, 189, 248, 0.35); /* sky-400 dashed */
+            transform-origin: 0 50%;
+            transition: all 0.3s ease;
+        }
+        /* Make lines pulse subtly */
+        .neural-line {
+            animation: pulseLine 6s infinite alternate ease-in-out;
+        }
+        @keyframes pulseLine {
+            0% { opacity: 0.3; } 100% { opacity: 0.8; }
+        }
+
+        /* Glassmorphism Classes */
+        .glass-box {
+            background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(16px);
+            border: 2px solid rgba(255, 255, 255, 0.9); box-shadow: 0 10px 40px rgba(14, 165, 233, 0.15); border-radius: 24px;
+        }
+        .glass-badge {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); cursor: default;
+        }
+        .glass-badge:hover {
+            background: rgba(255, 255, 255, 0.95); transform: translateY(-4px) scale(1.03);
+            box-shadow: 0 12px 30px rgba(56, 189, 248, 0.5); border-color: #7dd3fc; color: #0284c7;
+        }
+        .text-glass-box {
+            background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: 20px; padding: 1.25rem 1.5rem; box-shadow: 0 4px 20px rgba(14, 165, 233, 0.05); transition: all 0.4s ease; text-align: center;
+        }
+        .text-glass-box:hover {
+            background: rgba(255, 255, 255, 0.6); transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 10px 30px rgba(56, 189, 248, 0.4); border-color: #7dd3fc;
+        }
+        .text-glass-box:hover .hover-glow-text {
+            text-shadow: 0 0 12px rgba(56, 189, 248, 0.8); color: #0284c7; transition: all 0.3s ease;
+        }
+        .glass-tag {
+            background: rgba(255, 255, 255, 0.4); border: 1px solid rgba(255, 255, 255, 0.7); border-radius: 12px; padding: 10px 14px;
+            font-size: 0.95rem; font-weight: 700; color: #0369a1; display: flex; align-items: center; justify-content: center; gap: 8px;
+            box-shadow: 0 4px 15px rgba(14, 165, 233, 0.08); transition: all 0.3s ease;
+        }
+        .glass-tag:hover { transform: translateY(-2px) scale(1.05); background: rgba(255, 255, 255, 0.8); box-shadow: 0 8px 25px rgba(56, 189, 248, 0.4); }
+        .pure-glass-btn {
+            background: rgba(255, 255, 255, 0.3); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 8px 32px rgba(14, 165, 233, 0.15); border-radius: 99px; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .pure-glass-btn:hover { transform: translateY(-4px) scale(1.05); background: rgba(255, 255, 255, 0.6); box-shadow: 0 15px 40px rgba(56, 189, 248, 0.5); border-color: #ffffff; }
+
+        /* Animations */
+        .animate-full-title { background: linear-gradient(90deg, #0284c7, #4f46e5, #0ea5e9, #6366f1, #0284c7); background-size: 300% auto; color: transparent; -webkit-background-clip: text; background-clip: text; animation: shineText 5s linear infinite, gentleFloat 4s ease-in-out infinite; display: inline-block; }
+        @keyframes shineText { to { background-position: 300% center; } }
+        @keyframes gentleFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+        
+        /* Central Robot (Scaled) */
+        .animate-robot { animation: floatRobot 4s ease-in-out infinite; }
+        @keyframes floatRobot { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-20px); } }
+
+        /* Box Animations (Slightly reduced amplitude to stay connected) */
+        .animate-cart { animation: bounceCart 3s infinite; }
+        @keyframes bounceCart { 0%, 20%, 50%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-8px); } 60% { transform: translateY(-4px); } }
+        .animate-brain { animation: pulseBrain 3s infinite; }
+        @keyframes pulseBrain { 0% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(14,165,233,0.5)); } 50% { transform: scale(1.1); filter: drop-shadow(0 0 20px rgba(14,165,233,1)); } 100% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(14,165,233,0.5)); } }
+        .animate-spin-slow { animation: spinSlow 8s linear infinite; }
+        @keyframes spinSlow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .animate-bubble { animation: floatBubble 3.5s ease-in-out infinite alternate; }
+        @keyframes floatBubble { 0% { transform: translateY(6px); } 100% { transform: translateY(-6px); } }
+        .bar-1 { animation: growBar 2s ease-in-out infinite alternate; } .bar-2 { animation: growBar 2s ease-in-out infinite alternate 0.5s; } .bar-3 { animation: growBar 2s ease-in-out infinite alternate 1s; }
+        @keyframes growBar { 0% { height: 30%; } 100% { height: 100%; } }
+        .animate-globe { animation: spinGlobe 10s linear infinite; }
+        @keyframes spinGlobe { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
+        .animate-float-delayed { animation: floatDelayed 5s ease-in-out infinite alternate; }
+        @keyframes floatDelayed { 0% { transform: translateY(8px); } 100% { transform: translateY(-8px); } }
+        .animate-pulse-slow { animation: pulseSlow 4s infinite; }
+        @keyframes pulseSlow { 0%, 100% { transform: scale(0.95); opacity: 0.8; } 50% { transform: scale(1.05); opacity: 1; } }
+
+        /* Slide In text from left */
+        .slide-in-left { animation: slideIn 1s ease-out forwards; }
+        @keyframes slideIn { 0% { opacity: 0; transform: translateX(-30px); } 100% { opacity: 1; transform: translateX(0); } }
+    </style>
+</head>
+<body class="bg-sky-theme text-slate-800 flex items-center justify-center p-4 lg:p-8 relative">
+
+    <i class="fas fa-star text-sm bg-star dur-3 delay-1" style="top: 10%; left: 15%;"></i>
+    <i class="fas fa-star text-xs bg-star dur-5 delay-2" style="top: 25%; left: 80%;"></i>
+    <i class="fas fa-star text-lg bg-star dur-4" style="top: 50%; left: 5%;"></i>
+    <i class="fas fa-star text-sm bg-star dur-3 delay-3" style="top: 70%; left: 45%;"></i>
+    <i class="fas fa-star text-xs bg-star dur-5 delay-1" style="top: 85%; left: 20%;"></i>
+    <i class="fas fa-star text-md bg-star dur-4 delay-2" style="top: 15%; left: 60%;"></i>
+    <i class="fas fa-star text-sm bg-star dur-3" style="top: 60%; left: 85%;"></i>
+    <i class="fas fa-star text-xs bg-star dur-5 delay-3" style="top: 40%; left: 35%;"></i>
+    <i class="fas fa-star text-lg bg-star dur-4 delay-1" style="top: 90%; left: 75%;"></i>
+    <i class="fas fa-star text-sm bg-star dur-3 delay-2" style="top: 5%; left: 90%;"></i>
+    <i class="fas fa-star text-xs bg-star dur-6 delay-4" style="top: 18%; left: 10%;"></i>
+    <i class="fas fa-star text-sm bg-star dur-4 delay-1" style="top: 32%; left: 92%;"></i>
+    <i class="fas fa-star text-md bg-star dur-3 delay-2" style="top: 68%; left: 12%;"></i>
+    <i class="fas fa-star text-xs bg-star dur-5 delay-3" style="top: 82%; left: 38%;"></i>
+    <i class="fas fa-star text-lg bg-star dur-6 delay-1" style="top: 45%; left: 55%;"></i>
+    <i class="fas fa-star text-sm bg-star dur-3 delay-2" style="top: 28%; left: 65%;"></i>
+    <i class="fas fa-star text-xs bg-star dur-4 delay-3" style="top: 58%; left: 78%;"></i>
+    <i class="fas fa-star text-md bg-star dur-5" style="top: 7%; left: 42%;"></i>
+    <i class="fas fa-star text-xs bg-star dur-3 delay-1" style="top: 95%; left: 58%;"></i>
+    <i class="fas fa-star text-sm bg-star dur-6 delay-2" style="top: 35%; left: 22%;"></i>
+    <i class="fas fa-star text-md bg-star dur-4 delay-3" style="top: 22%; left: 48%;"></i>
+    <i class="fas fa-star text-xs bg-star dur-3 delay-4" style="top: 88%; left: 95%;"></i>
+    <i class="fas fa-star text-lg bg-star dur-5 delay-1" style="top: 62%; left: 30%;"></i>
+    <i class="fas fa-star text-sm bg-star dur-4 delay-2" style="top: 12%; left: 72%;"></i>
+    <i class="fas fa-star text-xs bg-star dur-3 delay-3" style="top: 75%; left: 62%;"></i>
+    <i class="fas fa-star text-md bg-star dur-6 delay-1" style="top: 48%; left: 88%;"></i>
+    <i class="fas fa-star text-xs bg-star dur-4 delay-2" style="top: 2%; left: 28%;"></i>
+    <i class="fas fa-star text-sm bg-star dur-3 delay-3" style="top: 80%; left: 52%;"></i>
+    <i class="fas fa-star text-md bg-star dur-5 delay-4" style="top: 55%; left: 68%;"></i>
+    <i class="fas fa-star text-lg bg-star dur-4" style="top: 20%; left: 85%;"></i>
+    <i class="fas fa-star text-sm bg-star dur-6 delay-1" style="top: 98%; left: 33%;"></i>
+    <i class="fas fa-star text-xs bg-star dur-3 delay-2" style="top: 40%; left: 18%;"></i>
+    <i class="fas fa-star text-md bg-star dur-5 delay-3" style="top: 66%; left: 40%;"></i>
+    <i class="fas fa-star text-sm bg-star dur-4 delay-4" style="top: 10%; left: 50%;"></i>
+    <i class="fas fa-star text-lg bg-star dur-3" style="top: 72%; left: 70%;"></i>
+
+    <div class="max-w-[85rem] w-full min-h-screen lg:min-h-[800px] py-10 lg:py-0 mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 items-center z-10 relative">
+        
+        <div class="slide-in-left flex flex-col justify-center items-center text-center h-full w-full">
+            
+            <div class="mb-4 inline-flex z-20">
+                <span class="glass-badge px-6 py-2.5 bg-white/80 text-sky-800 rounded-full font-extrabold text-sm tracking-widest border border-white shadow-md uppercase">
+                    <i class="fas fa-graduation-cap mr-2 text-sky-600"></i> Oxford Brookes Master's Project
+                </span>
+            </div>
+
+            <div class="text-glass-box mb-5 w-full max-w-xl mx-auto cursor-default z-20 hover:scale-[1.03] transition-transform duration-300">
+                <h1 class="text-4xl lg:text-5xl font-extrabold leading-tight">
+                    <span class="animate-full-title w-full">
+                        AI E-Commerce <br>
+                        Personalization Engine
+                    </span>
+                </h1>
+            </div>
+            
+            <div class="text-glass-box mb-6 w-full max-w-xl mx-auto cursor-default z-20">
+                <p class="text-base lg:text-lg text-blue-900 font-medium leading-relaxed hover-glow-text transition-colors duration-300">
+                    This dashboard transforms raw customer feedback into clear business decisions. By combining custom Machine Learning models with VADER sentiment analysis, the engine evaluates thousands of reviews in milliseconds. It automatically tracks product features like price and quality, highlights the most critical customer voices, and provides data-driven recommendations to either promote or investigate a product.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8 w-full max-w-lg mx-auto z-20">
+                <div class="glass-tag"><i class="fas fa-brain text-sky-500 text-lg"></i> ML Classification</div>
+                <div class="glass-tag"><i class="fas fa-chart-pie text-blue-500 text-lg"></i> Sentiment Analysis</div>
+                <div class="glass-tag"><i class="fas fa-bullseye text-yellow-500 text-lg"></i> Aspect Tracking</div>
+                <div class="glass-tag"><i class="fas fa-comment-dots text-emerald-400 text-lg"></i> Voice Extraction</div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-5 justify-center w-full z-20">
+                <a href="/login" class="pure-glass-btn px-12 py-4 text-blue-900 font-extrabold text-lg flex items-center justify-center">
+                    <i class="fas fa-sign-in-alt text-xl mr-3 text-sky-600"></i> Log In
+                </a>
+                <a href="/register" class="pure-glass-btn px-12 py-4 text-blue-900 hover:text-sky-900 font-bold text-lg flex items-center justify-center">
+                    <i class="fas fa-user-plus text-lg mr-3"></i> Create Account
+                </a>
+            </div>
+        </div>
+
+        <div class="relative h-[500px] lg:h-[600px] w-full flex items-center justify-center z-10 hidden lg:flex">
+            
+            <div class="glass-box w-72 h-72 rounded-full flex items-center justify-center relative z-20 border-4 border-white/70 shadow-2xl">
+                <div class="animate-robot text-sky-500 text-8xl drop-shadow-2xl">
+                    <i class="fas fa-robot"></i>
+                </div>
+            </div>
+
+            <div class="neural-line" style="width: 200px; transform: rotate(140deg); top: 250px; left: 240px;"></div>
+            <div class="neural-line" style="width: 250px; transform: rotate(-90deg); top: 300px; left: 360px;"></div>
+            <div class="neural-line" style="width: 220px; transform: rotate(45deg); top: 250px; left: 470px;"></div>
+            <div class="neural-line" style="width: 220px; transform: rotate(180deg); top: 340px; left: 160px;"></div>
+            <div class="neural-line" style="width: 220px; transform: rotate(200deg); top: 400px; left: 200px;"></div>
+            <div class="neural-line" style="width: 250px; transform: rotate(90deg); top: 380px; left: 360px;"></div>
+            <div class="neural-line" style="width: 220px; transform: rotate(-30deg); top: 400px; left: 520px;"></div>
+            <div class="neural-line" style="width: 220px; transform: rotate(0deg); top: 340px; left: 560px;"></div>
+
+            <div class="absolute top-8 left-0 glass-box p-5 rounded-3xl animate-cart z-30 shadow-lg border-blue-100">
+                <i class="fas fa-shopping-cart text-4xl text-blue-500"></i>
+                <div class="text-xs font-bold text-center mt-2 text-slate-500">Store API</div>
+            </div>
+
+            <div class="absolute bottom-8 right-0 glass-box p-5 rounded-3xl z-30 shadow-lg border-sky-100">
+                <div class="animate-brain">
+                    <i class="fas fa-brain text-5xl text-sky-400"></i>
+                </div>
+                <div class="text-xs font-bold text-center mt-2 text-slate-500">ML Core</div>
+            </div>
+
+            <div class="absolute bottom-24 left-10 glass-box p-4 rounded-full z-10 shadow-lg border-slate-100">
+                <div class="animate-spin-slow text-slate-400 text-4xl">
+                    <i class="fas fa-cog"></i>
+                </div>
+            </div>
+
+            <div class="absolute top-12 right-0 glass-box px-5 py-3 rounded-3xl rounded-br-none animate-bubble z-30 shadow-lg border-yellow-100">
+                <div class="flex gap-1 justify-center">
+                    <i class="fas fa-star text-yellow-400 text-xs"></i>
+                    <i class="fas fa-star text-yellow-400 text-xs"></i>
+                    <i class="fas fa-star text-yellow-400 text-xs"></i>
+                    <i class="fas fa-star text-yellow-400 text-xs"></i>
+                    <i class="fas fa-star-half-alt text-yellow-400 text-xs"></i>
+                </div>
+                <div class="text-[10px] font-bold text-center mt-1 text-slate-600 tracking-tight">VADER Data</div>
+            </div>
+
+            <div class="absolute top-1/2 right-[-25px] transform -translate-y-1/2 glass-box p-4 rounded-2xl z-30 shadow-lg border-indigo-100">
+                <div class="flex items-end gap-1.5 h-10 w-12 justify-center">
+                    <div class="bg-blue-400 w-3 rounded-t bar-1 h-[40%]"></div>
+                    <div class="bg-sky-400 w-3 rounded-t bar-2 h-[70%]"></div>
+                    <div class="bg-indigo-400 w-3 rounded-t bar-3 h-[100%]"></div>
+                </div>
+                <div class="text-[10px] font-bold text-center mt-2 text-slate-500">Sales ROI</div>
+            </div>
+
+            <div class="absolute top-0 left-1/2 transform -translate-x-1/2 glass-box p-3 rounded-full z-10 shadow-lg border-sky-50">
+                <div class="animate-globe text-sky-400 text-3xl">
+                    <i class="fas fa-globe-americas"></i>
+                </div>
+            </div>
+
+            <div class="absolute top-1/2 left-[-30px] transform -translate-y-1/2 glass-box p-4 rounded-3xl animate-float-delayed z-20 shadow-lg border-indigo-50">
+                <i class="fas fa-database text-4xl text-indigo-500"></i>
+                <div class="text-[10px] font-bold text-center mt-2 text-slate-500">Batch Data</div>
+            </div>
+
+            <div class="absolute bottom-2 left-1/2 transform -translate-x-1/2 glass-box p-4 rounded-full animate-pulse-slow z-20 shadow-xl border-emerald-100">
+                <i class="fas fa-magnifying-glass-chart text-3xl text-emerald-500"></i>
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+</html>
